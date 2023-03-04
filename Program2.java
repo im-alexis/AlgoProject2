@@ -26,14 +26,66 @@ public class Program2 {
 
         problem.getRegions().get(0).setMinDist(0);
         Queue<Region> heap = new PriorityQueue<>(problem.getRegions());
-
-        // TODO: implement this function
-
-
-
-
         
-        return -1;
+        ArrayList <Region> regions = problem.getRegions();
+        ArrayList<Boolean> isInMST = new ArrayList<>(regions.size()); //This will be to check if an vertex is connected to the mst, indexed by region name
+        ArrayList <Boolean> isInQ = new ArrayList<>(regions.size()); // This list will see if a vertex is Queue
+        ArrayList <Integer> predecessor = new ArrayList<>(regions.size()); //This list will hold the predcessor of each reagion min dist
+
+        for (int i = 0; i < regions.size(); i++){
+            isInMST.add(false);
+            isInQ.add(true);
+            predecessor.add(null);
+        }
+
+     
+        int minWeightLen = 0;
+        
+        while (heap.size() != 0){ 
+
+            Region inspectedRegion = heap.remove(); // Remove minimum in Queue
+            int inspectedRegionName = inspectedRegion.getName();
+            ArrayList<Region> neighbors = inspectedRegion.getNeighbors();
+            ArrayList<Integer> weights = inspectedRegion.getWeights();
+            isInQ.set(inspectedRegionName, false); // mark that inspectedRegion not in the Queue
+
+
+
+            if(!isInMST.get(inspectedRegionName)){ // Adding an edge to MST
+                isInMST.set(inspectedRegionName, true);
+                Integer edgeWeight = inspectedRegion.getMinDist();
+                minWeightLen = minWeightLen + edgeWeight; //To keep track of aggegete edges
+                if(!(predecessor.get(inspectedRegionName) == null)){ // check so only everything after the root noded gets an edge
+                    int preInspectedRegionName = predecessor.get(inspectedRegionName);
+                    Region preInspectedRegion = regions.get(preInspectedRegionName);
+                    preInspectedRegion.getMST_Neighbors().add(inspectedRegion);
+                    preInspectedRegion.getMST_Weights().add(edgeWeight);
+
+                    inspectedRegion.getMST_Neighbors().add(preInspectedRegion);
+                    inspectedRegion.getMST_Weights().add(edgeWeight);
+                }
+
+            }
+
+
+            for (int i = 0; i < neighbors.size(); i++){ 
+                Region adjRegion = neighbors.get(i);
+                int adjRegionName = adjRegion.getName();
+                int adjRegionEdgeWeight = weights.get(i);
+                
+                if(adjRegionEdgeWeight  < adjRegion.getMinDist() && isInQ.get(adjRegionName)){ // if an edge from inspected region is better than the current minDistance
+                    //To rearrange in heap
+                    adjRegion.setMinDist(adjRegionEdgeWeight);
+                    heap.remove(adjRegion);
+                    heap.add(adjRegion); 
+                    predecessor.set(adjRegion.getName(), inspectedRegionName);
+ //To keep track of aggegete edges
+                }
+            }
+        }
+
+ 
+        return minWeightLen;
     }
 
     
