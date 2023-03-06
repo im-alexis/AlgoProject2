@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "Driver",
             "projectName": "ProgrammingAssignment2_SP_2023_36aafa2f",
-            "args": "-m /Users/alexistorres/Documents/Code/ECE360C/Project2/ProgrammingAssignment2_SP_2023/tests/1.txt"
+            "args": "-d /Users/alexistorres/Documents/Code/ECE360C/Project2/ProgrammingAssignment2_SP_2023/tests/med.txt"
         }
     ]
 }

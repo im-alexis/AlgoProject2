@@ -118,6 +118,9 @@ public class Program2 {
         levelTracker.set(firstRegion, 0);
         isInQ.set(firstRegion, true);
         int lastLevel = 0;
+        Region lasRegionDiscovered = null;
+
+
        
         while(!nextRegion.isEmpty()){
             Region currentRegion = nextRegion.get(0);
@@ -134,13 +137,48 @@ public class Program2 {
                     isInQ.set(neighborName, true);
                     levelTracker.set(neighborName, currentRegionLevel + 1);
                     lastLevel = currentRegionLevel + 1;
+                    lasRegionDiscovered = neighbor;
                 }
                
             }
             isInQ.set(currentRegionName, false);
             isSearched.set(currentRegionName, true);
         }
+        
+        
+        for(int i = 0; i< regions.size(); i++){
+            levelTracker.set(i,-1);
+            isSearched.set(i,false);
+            isInQ.set(i, false);
+        }
+        lastLevel = 0;
+        firstRegion = lasRegionDiscovered.getName();
+        nextRegion.add(lasRegionDiscovered);
+        levelTracker.set(firstRegion, 0);
+        isInQ.set(firstRegion, true);
 
+        while(!nextRegion.isEmpty()){
+            Region currentRegion = nextRegion.get(0);
+            int currentRegionName = currentRegion.getName();
+            int currentRegionLevel = levelTracker.get(currentRegionName);
+            nextRegion.remove(0);
+           
+            ArrayList <Region> cRegionsMSTNeigh = currentRegion.getMST_Neighbors();
+            for(int i = 0; i < cRegionsMSTNeigh.size(); i++){
+                Region neighbor = cRegionsMSTNeigh.get(i);
+                int neighborName = neighbor.getName();
+                if((!isSearched.get(neighborName)) && (!isInQ.get(neighborName))){
+                    nextRegion.add(neighbor);
+                    isInQ.set(neighborName, true);
+                    levelTracker.set(neighborName, currentRegionLevel + 1);
+                    lastLevel = currentRegionLevel + 1;
+                    lasRegionDiscovered = neighbor;
+                }
+               
+            }
+            isInQ.set(currentRegionName, false);
+            isSearched.set(currentRegionName, true);
+        }
 
 
         
