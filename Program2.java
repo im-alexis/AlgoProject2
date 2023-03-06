@@ -2,7 +2,7 @@
  * Name: Alexis Torres
  * EID: at39625
  */
-//test
+
 
 // Implement your algorithms here
 // Methods may be added to this file, but don't remove anything
@@ -42,7 +42,7 @@ public class Program2 {
      
         int minWeightLen = 0;
         
-        while (heap.size() != 0){ 
+        while (!heap.isEmpty()){ 
 
             Region inspectedRegion = heap.remove(); // Remove minimum in Queue
             int inspectedRegionName = inspectedRegion.getName();
@@ -52,18 +52,16 @@ public class Program2 {
 
 
 
-            if(!isInMST.get(inspectedRegionName)){ // Adding an edge to MST
+            if(!isInMST.get(inspectedRegionName) && !(inspectedRegion.getMinDist() == Integer.MAX_VALUE)){ // Adding an edge to MST
                 isInMST.set(inspectedRegionName, true);
                 Integer edgeWeight = inspectedRegion.getMinDist();
-                minWeightLen = minWeightLen + edgeWeight; //To keep track of aggegete edges
+                minWeightLen = minWeightLen + edgeWeight; //To keep track of aggregete edges
                 if(!(predecessor.get(inspectedRegionName) == null)){ // check so only everything after the root noded gets an edge
                     int preInspectedRegionName = predecessor.get(inspectedRegionName);
                     Region preInspectedRegion = regions.get(preInspectedRegionName);
-                    preInspectedRegion.getMST_Neighbors().add(inspectedRegion);
-                    preInspectedRegion.getMST_Weights().add(edgeWeight);
-
-                    inspectedRegion.getMST_Neighbors().add(preInspectedRegion);
-                    inspectedRegion.getMST_Weights().add(edgeWeight);
+                    preInspectedRegion.setMST_NeighborAndWeight(inspectedRegion, edgeWeight);
+                    inspectedRegion.setMST_NeighborAndWeight(preInspectedRegion, edgeWeight);
+                    
                 }
 
             }
@@ -80,7 +78,7 @@ public class Program2 {
                     heap.remove(adjRegion);
                     heap.add(adjRegion); 
                     predecessor.set(adjRegion.getName(), inspectedRegionName);
- //To keep track of aggegete edges
+ 
                 }
             }
         }
@@ -102,12 +100,51 @@ public class Program2 {
         // Call findMinimumLength in your code to get MST. In gradescope, we will provide the mst in each regions mst_neighbors nad mst_weights list
         int length = findMinimumLength(problem);
         
-        // TODO: Implement this function
+
+        ArrayList <Region> nextRegion = new ArrayList<>();
+        ArrayList<Region> regions = problem.getRegions();
+        nextRegion.add(regions.get(0)); //Instering the first thing in the edge
+
+        ArrayList<Boolean> isSearched = new ArrayList<>(regions.size()); //This will be to check if an vertex is connected to the mst, indexed by region name
+        ArrayList <Boolean> isInQ = new ArrayList<>(regions.size()); // This list will see if a vertex is Queue
+
+        ArrayList <Integer> levelTracker = new ArrayList<>(); //indexed by region ID
+        for(int i = 0; i< regions.size(); i++){
+            levelTracker.add(-1);
+            isSearched.add(false);
+            isInQ.add(false);
+        }
+        int firstRegion = regions.get(0).getName();
+        levelTracker.set(firstRegion, 0);
+        isInQ.set(firstRegion, true);
+        int lastLevel = 0;
+       
+        while(!nextRegion.isEmpty()){
+            Region currentRegion = nextRegion.get(0);
+            int currentRegionName = currentRegion.getName();
+            int currentRegionLevel = levelTracker.get(currentRegionName);
+            nextRegion.remove(0);
+           
+            ArrayList <Region> cRegionsMSTNeigh = currentRegion.getMST_Neighbors();
+            for(int i = 0; i < cRegionsMSTNeigh.size(); i++){
+                Region neighbor = cRegionsMSTNeigh.get(i);
+                int neighborName = neighbor.getName();
+                if((!isSearched.get(neighborName)) && (!isInQ.get(neighborName))){
+                    nextRegion.add(neighbor);
+                    isInQ.set(neighborName, true);
+                    levelTracker.set(neighborName, currentRegionLevel + 1);
+                    lastLevel = currentRegionLevel + 1;
+                }
+               
+            }
+            isInQ.set(currentRegionName, false);
+            isSearched.set(currentRegionName, true);
+        }
 
 
 
         
-        return 0;
+        return lastLevel;
     }
 
     
